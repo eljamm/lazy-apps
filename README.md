@@ -53,7 +53,10 @@ lazy-apps.packages.${system}.lazy-app.override {
     desktopName = "GpsPrune";
     genericName = "GPS Data Editor";
     comment = "Application for viewing, editing and converting GPS coordinate data";
-    categories = [ "Education" "Geoscience" ];
+    categories = [
+      "Education"
+      "Geoscience"
+    ];
     mimeTypes = [
       "application/gpx+xml"
       "application/vnd.google-earth.kml+xml"
@@ -66,8 +69,10 @@ lazy-apps.packages.${system}.lazy-app.override {
 The equivalent for plain old Nix is to do
 
 ```nix
-let lazy-app = ((import <lazy-apps>).mkLazyApps { inherit pkgs; }).lazy-app;
-in lazy-app.override { pkg = pkgs.hello; }
+let
+  lazy-app = (import <lazy-apps> { inherit pkgs; }).lazy-app;
+in
+lazy-app.override { pkg = pkgs.hello; }
 ```
 
 The fields currently available for override are:

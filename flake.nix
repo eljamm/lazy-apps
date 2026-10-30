@@ -19,9 +19,7 @@
       forAllSystems = nixpkgs.lib.genAttrs nixpkgs.lib.systems.flakeExposed;
     in
     {
-      packages = forAllSystems (
-        system: (import ./.).mkLazyApps { pkgs = nixpkgs.legacyPackages.${system}; }
-      );
+      packages = forAllSystems (system: import ./. { pkgs = nixpkgs.legacyPackages.${system}; });
 
       overlays.default = import ./overlay.nix;
 

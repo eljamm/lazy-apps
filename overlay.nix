@@ -1,6 +1,6 @@
 final: prev:
 let
-  lazy-app = ((import ./.).mkLazyApps { pkgs = final; }).lazy-app;
+  lazy-app = (import ./. { pkgs = final; }).lazy-app;
 in
 {
   lazy-app = lazy-app;
