@@ -5,6 +5,17 @@
 let
   mkExeName = pkg: if pkg == null then null else pkg.meta.mainProgram or (lib.getName pkg);
 
+  mkShareFiles =
+    pkg:
+    pkgs.runCommand "${lib.getName pkg}-share" { } ''
+      mkdir -p $out/share
+      for d in applications icons pixmaps mime metainfo; do
+        if [[ -e ${pkg}/share/$d ]]; then
+          cp -rL --no-preserve=mode ${pkg}/share/$d $out/share/
+        fi
+      done
+    '';
+
   lazy-app = lib.makeOverridable (
     {
       pkg ? pkgs.hello,
@@ -22,7 +33,10 @@ let
         {
           pname = lib.getName pkg;
           version = lib.getVersion pkg;
-          nativeBuildInputs = [ pkgs.copyDesktopItems ];
+          nativeBuildInputs = with pkgs; [
+            copyDesktopItems
+            rsync
+          ];
 
           desktopItems = desktopItems ++ lib.optional (desktopItem != null) desktopItem;
 
@@ -55,42 +69,11 @@ let
       )
       ''
         runHook preInstall
+        mkdir -p $out/share
+        rsync -r --chmod=Du+rwx,Fu+rw ${mkShareFiles pkg}/share/ $out/share/
         install -Dm755 "$scriptPath" "$out/bin/$exeName"
         runHook postInstall
       ''
   ) { };
 in
-
-{
-  inherit
-    lazy-app
-    ;
-
-  examples = pkgs.symlinkJoin {
-    name = "lazy-apps-examples";
-    paths = [
-      (lazy-app.override { pkg = pkgs.hello; })
-
-      (lazy-app.override {
-        pkg = pkgs.stellarium;
-        desktopItem = pkgs.makeDesktopItem {
-          name = "stellarium";
-          type = "Application";
-          desktopName = "Stellarium";
-          genericName = "Desktop planetarium";
-          exec = "stellarium --startup-script=%f";
-          icon = "stellarium";
-          startupNotify = false;
-          terminal = false;
-          categories = [
-            "Astronomy"
-            "Education"
-            "Science"
-          ];
-          comment = "Planetarium";
-          mimeTypes = [ "application/x-stellarium-script" ];
-        };
-      })
-    ];
-  };
-}
+lazy-app
