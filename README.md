@@ -1,3 +1,7 @@
+> [!WARNING]
+> Personal fork of <https://git.sr.ht/~rycee/lazy-apps> for testing, with plans
+> to submit changes upstream.
+
 # Lazy Apps
 
 ## Introduction
